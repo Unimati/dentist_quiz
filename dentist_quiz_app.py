@@ -32,24 +32,26 @@ steps = [
 step = st.session_state.step
 st.subheader(steps[step]['title'])
 
-for q in steps[step]['questions']:
-    st.session_state.answers[q] = st.text_input(q, value=st.session_state.answers.get(q, ""))
+# Use a form to collect inputs without auto-refreshing
+with st.form(f"form_step_{step}"):
+    for q in steps[step]['questions']:
+        st.session_state.answers[q] = st.text_input(q, value=st.session_state.answers.get(q, ""))
+    
+    if step == 3:
+        mood = st.selectbox("Mood today:", ["Happy", "Stressed", "Tired", "Fulfilled", "Bored"], index=0)
+        st.session_state.answers["Mood"] = mood
 
-if step == 3:
-    mood = st.selectbox("Mood today:", ["Happy", "Stressed", "Tired", "Fulfilled", "Bored"], index=0)
-    st.session_state.answers["Mood"] = mood
+    submitted = st.form_submit_button("Save & Continue")
 
-# Navigation buttons
+    if submitted and step < len(steps) - 1:
+        st.session_state.step += 1
+
+# Navigation buttons outside the form to prevent conflict
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     if step > 0:
         if st.button("⬅ Back"):
             st.session_state.step -= 1
-
-with col2:
-    if step < len(steps) - 1:
-        if st.button("Next ➡"):
-            st.session_state.step += 1
 
 with col3:
     if step == len(steps) - 1:
